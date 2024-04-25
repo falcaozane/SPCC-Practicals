@@ -44,7 +44,7 @@ void insertSymbol(struct SymbolEntry symbolTable[], int *symbolCount, char newSy
 // Display all symbols in the symbol table
 void displaySymbolTable(const struct SymbolEntry symbolTable[], int symbolCount) {
     printf("\nSymbol Table\n");
-    printf("Symbol \t Address \t Type\n");
+    printf("Symbol \t Address \t\t Type\n");
     for (int i = 0; i < symbolCount; i++) {
         printf("%c \t %p \t %s\n", symbolTable[i].symbol, symbolTable[i].address, symbolTable[i].type);
     }
