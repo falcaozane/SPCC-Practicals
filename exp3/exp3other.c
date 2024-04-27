@@ -30,6 +30,12 @@ void procTdash(char str[])
     }
 }
 
+//Test cases :
+// (i+i*i/i)
+//i+
+//(i+i*i) open and close
+//i/i
+
 // F->(E)/i
 void procF(char str[])
 {
