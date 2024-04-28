@@ -3,7 +3,7 @@
 int operator=0,operand=0;
 %}
 %%
-[+\-\*\/\%\^] {operator++;}
+[+\-\*\/\%^] {operator++;}
 [a-zA-Z0-9]+ {operand++;}
 %%
 int yywrap(){
