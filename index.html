@@ -746,12 +746,195 @@
                     }
             </p>
         </div>
+        <div>
+            <h2>Micro Pass 2</h2>
+            <p>
+                    #include <stdio.h>
+                    #include <stdlib.h>
+                    #include <string.h>
+                    
+                    
+                    int main(){
+                        char label[10],opcode[10],operand[10],mntc[10],macroname[10],mdtc[10],mdtmdtc[10],ignore[10],mdtlabel[10],mdtvalue[10];
+                        int flag = 0;
+                        
+                        FILE *fp1,*fp2,*fp3,*fp4;
+                        fp1 = fopen("copyfile.txt","r");        //input
+                        fp2 = fopen("mnt.txt","r");             //input
+                        fp3 = fopen("mdt.txt","r");             //input
+                        fp4 = fopen("expandedSource.txt","w");  //output
+                        
+                        fscanf(fp1,"%s %s %s",label,opcode,operand);
+                        
+                        while(strcmp(opcode,"END")!=0){
+                            if(strcmp(opcode,"START")==0 || strcmp(opcode,"USING")==0 || strcmp(opcode,"DC")==0 || strcmp(opcode,"DS")==0 ){
+                                fprintf(fp4,"%s %s %s\n",label,opcode,operand);
+                            }
+                            else{
+                                fscanf(fp2,"%s %s %s",mntc,macroname,mdtc);
+                                while(!feof(fp2)){
+                                    if(strcmp(opcode,macroname)==0){
+                                        flag = 1;
+                                        break;
+                                    }
+                                    fscanf(fp2,"%s %s %s",mntc,macroname,mdtc);
+                                }
+                                if(strcmp(opcode,macroname)==0){
+                                    flag = 1;
+                                }
+                                if(flag==1){
+                                    flag = 0;
+                                    fscanf(fp3,"%s %s %s %s",mdtmdtc,ignore,mdtlabel,mdtvalue);
+                                    while(strcmp(mdtc,mdtmdtc)!=0){
+                                        fscanf(fp3,"%s %s %s %s",mdtmdtc,ignore,mdtlabel,mdtvalue);
+                                    }
+                                    fscanf(fp3,"%s %s %s %s",mdtmdtc,ignore,mdtlabel,mdtvalue);
+                                    while(strcmp(mdtlabel,"MEND")!=0){
+                                        fprintf(fp4,"%s %s %s\n",ignore,mdtlabel,mdtvalue);
+                                        fscanf(fp3,"%s %s %s %s",mdtmdtc,ignore,mdtlabel,mdtvalue);
+                                    }
+                                    rewind(fp3);
+                                }
+                                else{
+                                    fprintf(fp4,"%s %s %s\n",label,opcode,operand);
+                                }
+                                rewind(fp2);
+                            }
+                            fscanf(fp1,"%s %s %s",label,opcode,operand);
+                        }
+                        
+                        fprintf(fp4,"%s %s %s\n",label,opcode,operand);
+                        
+                        fclose(fp1);
+                        fclose(fp2);
+                        fclose(fp3);
+                        fclose(fp4);
+                        
+                        
+                        return 0;
+                    }
+                    
+            </p>
+        </div>
     </div>
     <div>
         <h1>Lex program - exp 5</h1>
         <div>
             <h1>Count number of newlines, spaces and words</h1>
-            <p></p>
+            <p>
+                %{
+                    #include<stdio.h>
+                    int newLines = 0, spaces = 0, words = 0;  
+                    %}
+                    %%
+                    [\n]+ {newLines++;}
+                    [ ]+ {spaces++;}
+                    [a-zA-Z]{2,} {words++;}
+                    %%
+                    int yywrap() {
+                      return 1;
+                    }
+                    int main() {
+                      yyin = fopen("input.txt","r");
+                      yylex();
+                      printf("\nNo. of words: %d",words);
+                      printf("\nNo. of new line: %d",newLines);
+                      printf("\nNo. of spaces: %d\n",spaces);
+                    }
+            </p>
+            <h1>Operator and Oprand</h1>
+            <p>
+                %{
+                    #include<stdio.h>
+                    int operators=0, operands=0;
+                    %}
+                    
+                    %%
+                    [\+\-\*\/\=]+ {operators++;} 
+                    [0-9a-zA-Z]+ {operands++;}
+                    %%
+                    
+                    int yywrap(){ 
+                      return 1;
+                    }
+                    
+                    int main() {
+                      printf("Enter the equation: "); 
+                      yylex();
+                      printf("No of operators: %d\n", operators); 
+                      printf("No of operands: %d\n", operands);
+                    }
+            </p>
+            <h1>Count tokens – identifiers, constants, operators, special symbols</h1>
+            <p>
+                %{
+                    #include<stdio.h>
+                    int operators = 0, identifier = 0, constants = 0, spSymbols = 0; 
+                    %}
+                    %%
+                    _[_a-zA-Z0-9]+ {identifier++;}
+                    [\/\+\-\*\%]+ {operators++;}
+                    [0-9]* {constants++;}
+                    . {spSymbols++;}
+                    
+                    %%
+                    int yywrap()
+                    { 
+                      return 1;
+                    }
+                    
+                    int main() {
+                    printf("Enter the strings: "); 
+                    yylex();
+                    
+                    printf("No of identifiers: %d\n", identifier); 
+                    printf("No of operators: %d\n", operators); 
+                    printf("No of constants: %d\n", constants); 
+                    printf("No of spSymbols: %d\n", spSymbols); 
+                    }
+            </p>
+            <h1>Vowels and consonents</h1>
+            <p>
+                %{
+                    #include<stdio.h>
+                    int vow=0,cons=0;
+                    %}
+                    %%
+                    [aeiou] {vow++;}
+                    [a-zA-Z] {cons++;}
+                    %%
+                    int yywrap() {
+                      return 1;
+                    }
+                    int main() {
+                      printf("Enter a string\n");
+                      yylex();
+                      printf("Vowels:-%d\n",vow);
+                      printf("Cons:-%d\n",cons);
+                      return 0;
+                    }
+            </p>
+            <h1>Positive and Negative Fractions</h1>
+            <p>
+                %{
+                    #include<stdio.h>
+                    int posInt = 0,negInt = 0,posFloat = 0,negFloat = 0;
+                    %}
+                    %%
+                    [+]?[0-9]+ {posInt++;}
+                    [-][0-9]+ {negInt++;}
+                    [+]?[0-9]*\.[0-9]+ {posFloat++;}
+                    [-]+[0-9]*\.[0-9]+ {negFloat++;}
+                    %%
+                    int yywrap() {
+                      return 1;
+                    }
+                    int main() {
+                      printf("Enter a number\n");
+                      yylex();
+                      printf("Postive Int: %d\nNegative Int: %d\nPostive Float: %d\nNegative Float: %d\n",posInt,negInt,posFloat,negFloat);
+                    }
+            </p>
         </div>
     </div>
 </body>
