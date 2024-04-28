@@ -9,7 +9,7 @@
     <div>
         <h1>Symbol table</h1>
         <p>
-            #include <stdio.h>
+                #include <stdio.h>
                 #include <ctype.h>
                 #include <stdlib.h>
                 #include <string.h>
@@ -205,6 +205,554 @@
                 }
                 
         </p>
+    </div>
+    <div>
+        <h1>Lexical Analyzer</h1>
+        <p>
+                #include <stdio.h>
+                #include <ctype.h>
+                #include <string.h>
+                
+                int main() {
+                    // Open the input and output files
+                    FILE *input = fopen("input1.txt", "r");
+                    FILE *output = fopen("output2.txt", "w");
+                    
+                    // If file can't be opened, exit with error
+                    if (input == NULL || output == NULL) {
+                        printf("Error opening file.\n");
+                        return 1;
+                    }
+                    
+                    // Initialize counters for lines and tokens
+                    int lineNumber = 1;
+                    int tokenNumber = 0;
+                
+                    // Define a list of keywords
+                    const char *keywords[] = {
+                        "int", "main", "if", "else", "do", "while", "include", "stdio", 
+                        "malloc", "for", "printf", "scanf", "ctype", "stdlib", "string", 
+                        "math", "void", "char", "getchar", "type", "isalpha", "toascii", 
+                        "switch", "case", "break", "exit", "return"
+                    };
+                
+                    // Write the header to the output file
+                    fprintf(output, "Line No.\tToken No.\tToken Type\tValue\n");
+                
+                    char ch; // Character buffer to hold current character
+                    char str[20]; // Buffer to build strings (e.g., identifiers)
+                    int i; // Index for building strings
+                
+                    // Loop through all characters in the input file
+                    while ((ch = fgetc(input)) != EOF) {
+                        if (ch == '\n') { 
+                            // Increment line number when encountering a newline
+                            lineNumber++;
+                        } else if (strchr("+-*/", ch)) {
+                            // Detect operators and write to the output file
+                            fprintf(output, "%d\t\t%d\t\tOperator\t%c\n", lineNumber, tokenNumber++, ch);
+                        } else if (strchr(";{}()?@!%", ch)) {
+                            // Detect special symbols and write to the output file
+                            fprintf(output, "%d\t\t%d\t\tSpecial Symbol\t%c\n", lineNumber, tokenNumber++, ch);
+                        } else if (isdigit(ch)) {
+                            // Detect digits and write to the output file
+                            fprintf(output, "%d\t\t%d\t\tDigit\t\t%c\n", lineNumber, tokenNumber++, ch);
+                        } else if (isalpha(ch)) {
+                            // Build an identifier or keyword
+                            i = 0; // Reset index for string building
+                            str[i++] = ch; // Start with the first alphabetic character
+                            while (isalnum((ch = fgetc(input))) && ch != ' ') {
+                                // Build a string while reading alphanumeric characters
+                                str[i++] = ch;
+                            }
+                            str[i] = '\0'; // Null-terminate the string
+                
+                            // Check if the built string is a keyword
+                            int isKeyword = 0;
+                            for (i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+                                if (strcmp(str, keywords[i]) == 0) {
+                                    isKeyword = 1; // It's a keyword
+                                    break;
+                                }
+                            }
+                
+                            // Write to the output file depending on whether it's a keyword or an identifier
+                            if (isKeyword) {
+                                fprintf(output, "%d\t\t%d\t\tKeyword\t\t%s\n", lineNumber, tokenNumber++, str);
+                            } else {
+                                fprintf(output, "%d\t\t%d\t\tIdentifier\t%s\n", lineNumber, tokenNumber++, str);
+                            }
+                        }
+                    }
+                
+                    // Close the files to avoid memory leaks
+                    fclose(input);
+                    fclose(output);
+                
+                    return 0; // Exit the program successfully
+                }
+        </p>
+    </div>
+    <div>
+        <h1>Grammar exp 3</h1>
+        <p>
+                #include <stdio.h>
+                #include <string.h>
+                
+                #define SUCCESS 1  // Indicates successful parsing
+                #define FAILED 0   // Indicates failed parsing
+                
+                // Function declarations for recursive parsing
+                int E();        // Expression
+                int Edash();    // Expression Tail
+                int T();        // Term
+                int Tdash();    // Term Tail
+                int F();        // Factor
+                
+                const char *pt;  // Pointer to traverse the input string
+                char grammar[64];  // Buffer to store the input expression
+                
+                int main() {
+                    // Prompt the user for an arithmetic expression
+                    printf("Enter an arithmetic expression: ");
+                    scanf("%s", grammar);
+                
+                    // Initialize pointer to the start of the expression
+                    pt = grammar;
+                
+                    // Display the parsing output
+                    puts("\nInput\t\tAction");
+                    
+                    // Start parsing from the expression and check if the entire input is parsed
+                    if (E() && *pt == '\0') {
+                        // If parsing is successful, output success message
+                        puts("String is successfully parsed");
+                        return 0;
+                    } else {
+                        // If parsing failed, output error message
+                        puts("Error in parsing string");
+                        return 1;
+                    }
+                }
+                
+                // E -> T E'
+                int E() {
+                    // Display the current action
+                    printf("%-16s E -> T E'\n", pt);
+                
+                    // Parse the Term and then the Expression Tail
+                    if (T() && Edash()) {
+                        return SUCCESS;  // Parsing was successful
+                    } else {
+                        return FAILED;   // Parsing failed
+                    }
+                }
+                
+                // Edash -> + T E' | ε
+                int Edash() {
+                    if (*pt == '+') {
+                        // If the next character is '+', continue parsing
+                        printf("%-16s E' -> + T E'\n", pt);
+                        pt++;  // Move to the next character
+                
+                        // Parse the Term and then the next Expression Tail
+                        if (T() && Edash()) {
+                            return SUCCESS;  // Parsing successful
+                        } else {
+                            return FAILED;   // Parsing failed
+                        }
+                    } else {
+                        // If no more '+' is found, ε production (empty) indicates end of expression
+                        printf("%-16s E' -> $\n", pt);
+                        return SUCCESS;  // Parsing successful
+                    }
+                }
+                
+                // T -> F T'
+                int T() {
+                    printf("%-16s T -> F T'\n", pt);
+                
+                    // Parse the Factor and then the Term Tail
+                    if (F() && Tdash()) {
+                        return SUCCESS;  // Parsing successful
+                    } else {
+                        return FAILED;   // Parsing failed
+                    }
+                }
+                
+                // Tdash -> * F T' | ε
+                int Tdash() {
+                    if (*pt == '*') {
+                        // If the next character is '*', continue parsing
+                        printf("%-16s T' -> * F T'\n", pt);
+                        pt++;  // Move to the next character
+                
+                        // Parse the Factor and then the next Term Tail
+                        if (F() && Tdash()) {
+                            return SUCCESS;  // Parsing successful
+                        } else {
+                            return FAILED;   // Parsing failed
+                        }
+                    } else {
+                        // If no more '*' is found, ε production (empty) indicates end of term
+                        printf("%-16s T' -> $\n", pt);
+                        return SUCCESS;  // Parsing successful
+                    }
+                }
+                
+                // F -> ( E ) | i
+                int F() {
+                    if (*pt == '(') {
+                        // If the next character is '(', it's a sub-expression
+                        printf("%-16s F -> ( E )\n", pt);
+                        pt++;  // Move past '('
+                
+                        // Parse the inner expression and expect a closing ')'
+                        if (E() && *pt == ')') {
+                            pt++;  // Move past ')'
+                            return SUCCESS;  // Parsing successful
+                        } else {
+                            return FAILED;   // Parsing failed
+                        }
+                    } else if (*pt == 'i') {
+                        // If the character is 'i', it's an identifier
+                        printf("%-16s F -> i\n", pt);
+                        pt++;  // Move to the next character
+                        return SUCCESS;  // Parsing successful
+                    } else {
+                        return FAILED;  // Parsing failed due to unexpected character
+                    }
+                }
+        </p>
+    </div>
+    <div>
+        <h1>Address code generation</h1>
+        <p>
+                import re
+                # Global variable for generating unique temporary variable names
+                temp_count = 1
+
+                # Function to generate three-address code for assignment
+                def generate_assignment_code():
+                    global temp_count
+                    expression = "a = b * c + d"  # Example expression
+                    print("Expression:", expression)
+
+                    # Split the expression into LHS and RHS
+                    lhs, rhs = expression.split('=')
+                    lhs = lhs.strip()
+                    rhs = rhs.strip()
+
+                    # Split the RHS into terms
+                    terms = rhs.split(' ')
+                    
+                    code = []  # List to store generated TAC
+                    # Generate TAC for operations in the RHS
+                    for i in range(len(terms)):
+                        if terms[i] in ['+', '*']:
+                            op = terms[i]
+                            operand1 = terms[i - 1]
+                            operand2 = terms[i + 1]
+                            temp = f't{temp_count}'
+                            temp_count += 1
+                            
+                            code.append(f"{temp} = {operand1} {op} {operand2};")
+                            terms[i + 1] = temp  # Update the next operand to use the temporary variable
+                    
+                    # Final assignment to the LHS
+                    code.append(f"{lhs} = {terms[-1]};")
+                    print("Three-address code:")
+                    print('\n'.join(code))  # Display generated TAC
+
+
+                # Function to generate three-address code for conditional statements
+                def generate_conditional_code():
+                    global temp_count
+                    expression = "if (a < b) then c = d + e else c = d - e"  # Example conditional expression
+                    print("Expression:", expression)
+
+                    # Extract condition, then-part, and else-part
+                    parts = re.split(r' then | else ', expression)
+                    condition = parts[0][3:].strip()  # Remove "if "
+                    then_part = parts[1].strip()
+                    else_part = parts[2].strip()
+
+                    # Create labels for branching in TAC
+                    true_label = f'L{temp_count}'
+                    temp_count += 1
+                    end_label = f'L{temp_count}'
+                    temp_count += 1
+                    
+                    # Generate TAC for conditional branching
+                    code = [
+                        f"if {condition} goto {true_label};",
+                        f"{else_part} goto {end_label};",
+                        f"{true_label}: {then_part};",
+                        f"{end_label}:"
+                    ]
+                    print("Three-address code:")
+                    print('\n'.join(code))  # Display generated TAC
+
+
+                # Function to generate three-address code for copy operations
+                def generate_copy_code():
+                    expression = "x = y"  # Example copy expression
+                    print("Expression:", expression)
+
+                    # Split the expression into target and source
+                    target, source = expression.split('=')
+                    target = target.strip()
+                    source = source.strip()
+
+                    # Generate TAC for copy operation
+                    print("Three-address code:")
+                    print(f"{target} = {source};")  # Display generated TAC
+
+
+                # Function to generate three-address code for indexed assignment
+                def generate_indexed_assignment_code():
+                    global temp_count
+                    expression = "x[2] = y + 5"  # Example indexed assignment expression
+                    print("Expression:", expression)
+
+                    # Extract the array name and index
+                    target, operation = expression.split('=')
+                    array_name = target[:target.index('[')].strip()
+                    index = target[target.index('[') + 1:target.index(']')].strip()
+
+                    # Split the operation into parts
+                    operation_parts = operation.strip().split(' ')
+                    
+                    # Generate TAC for indexed assignment
+                    intermediate_var = f't{temp_count}'
+                    temp_count += 1
+                    
+                    code = [
+                        f"{intermediate_var} = {operation_parts[0]} {operation_parts[1]} {operation_parts[2]};",
+                        f"{array_name}[{index}] = {intermediate_var};"
+                    ]
+                    print("Three-address code:")
+                    print('\n'.join(code))  # Display generated TAC
+
+
+                # Main function with menu-driven interaction
+                def main():
+                    while True:
+                        print("Generate three-address code for:")
+                        print("1. Assignment")
+                        print("2. Conditional")
+                        print("3. Indexed Assignment")
+                        print("4. Copy")
+                        print("5. Exit")
+                        
+                        # Get user input
+                        choice = int(input("Enter your choice: "))
+                        
+                        if choice == 1:
+                            generate_assignment_code()
+                        elif choice == 2:
+                            generate_conditional_code()
+                        elif choice == 3:
+                            generate_indexed_assignment_code()
+                        elif choice == 4:
+                            generate_copy_code()
+                        elif choice == 5:
+                            print("Exiting...")
+                            break
+                        else:
+                            print("Invalid choice. Please enter a number from 1 to 5.")
+                        
+                        print()  # Print a blank line for separation
+
+
+                if __name__ == "__main__":
+                    main()  # Run the main function to start the program
+        </p>
+    </div>
+    <div>
+        <div>
+            <h1>Assembler pass 1</h1>
+        <p>
+                #include <stdio.h>
+                #include <stdlib.h>
+                #include <string.h>
+                
+                int main(){
+                
+                    char label[10], opcode[10], operand[10], mnemonic[10];
+                    int locctr = 0;
+                
+                    FILE *fp1, *fp2, *fp3, *fp4;
+                
+                    fp1 = fopen("input.txt","r");
+                    fp2 = fopen("mot.txt", "r");
+                    fp3 = fopen("output.txt", "w");
+                    fp4 = fopen("st.txt", "w");
+                
+                    //START opcode
+                    fscanf(fp1, "%s %s %s", label, opcode, operand); 
+                    fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
+                
+                    //USING opcode
+                    fscanf(fp1, "%s %s %s", label, opcode, operand);
+                    fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
+                
+                    while(strcmp(opcode, "END") != 0){
+                
+                        if(strcmp(opcode, "DC") == 0 || strcmp(opcode, "DS")==0){
+                            fprintf(fp4, "%s %d\n", label, locctr);
+                            fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
+                            locctr +=4; 
+                        }
+                        else{
+                            fscanf(fp2, "%s", mnemonic);
+                            fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
+                            while(strcmp(mnemonic, "end")!=0){
+                                if(strcmp(opcode, mnemonic)==0){
+                                    locctr += 4;
+                                    break;
+                                }
+                                fscanf(fp2, "%s", mnemonic); //Search till opcode is found in mnemonic table
+                            }
+                            rewind(fp2); //Bring back to start of mnemonic file.
+                        }
+                
+                        fscanf(fp1, "%s %s %s", label, opcode, operand);
+                    }    
+                
+                    //END opcode
+                    fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
+                
+                    fclose(fp1);
+                    fclose(fp2);
+                    fclose(fp3);
+                    fclose(fp4);
+                
+                    return 0;
+                }
+        </p>
+        </div>
+        <div>
+            <h1>Assembler pass 2</h1>
+            <p>
+                    #include <stdio.h>
+                    #include <stdlib.h>
+                    #include <string.h>
+                    
+                    int main(){
+                    
+                        char label[10], opcode[10], operand[10], mnemonic[10], locctr[10], mlabel[10];
+                    
+                        FILE *fp1, *fp2, *fp3, *fp4, *fp5;
+                    
+                        fp1 = fopen("input.txt", "r");
+                        fp2 = fopen("mot.txt", "r");
+                        fp3 = fopen("output.txt", "r");
+                        fp4 = fopen("outTable.txt","w");
+                        fp5 = fopen("BT.txt", "w");
+                    
+                        fscanf(fp3, "%s %s %s %s", locctr, label, opcode, operand);
+                        fscanf(fp3, "%s %s %s %s", locctr, label, opcode, operand);
+                    
+                        fprintf(fp5, "Y  %c%c 00 00 00", operand[2], operand[3]);
+                    
+                        fscanf(fp3, "%s %s %s %s", locctr, label, opcode, operand);
+                        
+                        while(strcmp(opcode, "END") !=  0){
+                    
+                            if(strcmp(opcode, "DC")==0){
+                                fprintf(fp4, "%s\t%c\n", locctr, operand[2]);
+                            }
+                            else if(strcmp(opcode, "DS") == 0){
+                                fprintf(fp4, "%s\t_\n", locctr);
+                            }
+                            else{
+                                fscanf(fp2, "%s %s",mnemonic, mlabel);
+                                while(strcmp(mnemonic, "end")!= 0){
+                                    if(strcmp(opcode, mnemonic) == 0){
+                                        fprintf(fp4,"%s\t%s\n", mlabel, operand);
+                                        break;
+                                    }
+                                    fscanf(fp2, "%s %s", mnemonic, mlabel);
+                                }
+                                rewind(fp2);
+                            }
+                            fscanf(fp3, "%s %s %s %s", locctr, label, opcode, operand);
+                        }
+                        fclose(fp1);
+                        fclose(fp2);
+                        fclose(fp3);
+                        fclose(fp4);
+                        fclose(fp5);
+                    
+                        return 0;
+                    }
+            </p>
+        </div>
+    </div>
+    <div>
+        <div>
+            <h1>Macro pass 1</h1>
+            <p>
+                    #include <stdio.h>
+                    #include <stdlib.h>
+                    #include <string.h>
+                    
+                    int main(){
+                    
+                        char label[10], opcode[10], operand[10];
+                        int mntc=1, mdtc=1; //counters
+                    
+                        FILE *fp1, *fp2, *fp3, *fp4;
+                        fp1 = fopen("input.txt", "r");
+                        fp2 = fopen("mnt.txt", "w"); //Macro Name Table
+                        fp3 = fopen("mdt.txt", "w"); //Macro Definition Table
+                        fp4 = fopen("copyfile.txt", "w");
+                    
+                        fscanf(fp1, "%s %s %s", label, opcode, operand);
+                    
+                        while(strcmp(opcode, "END")!= 0){
+                            if(strcmp(opcode, "MACRO") == 0){
+                                fscanf(fp1, "%s %s %s", label, opcode, operand);
+                                fprintf(fp2,"%d %s %d\n", mntc, opcode, mdtc);
+                                mntc++;
+                    
+                                //Traverse the Macro
+                                while(strcmp(opcode, "MEND")!= 0){
+                                    fprintf(fp3, "%d %s %s\n", mdtc, label, opcode, operand);
+                                    mdtc++;
+                                    fscanf(fp1, "%s %s %s", label, opcode, operand);
+                                }
+                    
+                                //add MEND to mdtc.
+                                fprintf(fp3, "%d %s %s\n", mdtc, label, opcode, operand);
+                                mdtc++;
+                            }else{
+                                fprintf(fp4, "%s %s %s\n", label, opcode, operand);
+                            }
+                            
+                            fscanf(fp1, "%s %s %s", label, opcode, operand);
+                        }
+                    
+                        //add END to copyfile
+                        fprintf(fp4, "%s %s %s\n", label, opcode, operand);
+                    
+                        fclose(fp1);
+                        fclose(fp2);
+                        fclose(fp3);
+                        fclose(fp4);
+                    
+                        return 0;
+                    }
+            </p>
+        </div>
+    </div>
+    <div>
+        <h1>Lex program - exp 5</h1>
+        <div>
+            <h1>Count number of newlines, spaces and words</h1>
+            <p></p>
+        </div>
     </div>
 </body>
 </html>
