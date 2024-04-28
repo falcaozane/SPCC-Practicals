@@ -8,7 +8,7 @@ int main(){
     FILE *input = fopen("input1.txt", "r");
     FILE *output = fopen("jon_exp2Output.txt", "w");
 
-    //if problem in opening file
+    //if problem in opening file (not necessary)
     if(input == NULL || output == NULL){
         printf("Error in opening file.\n");
         return 1;
@@ -21,7 +21,7 @@ int main(){
     const char *keywords[]={
         "int", "main", "if", "else", "do", "while", "include", "stdio", 
         "malloc", "for", "printf", "scanf", "ctype", "stdlib", "string", 
-        "math", "void", "char", "getchar", "type", "isalpha", "toascii", 
+        "math", "void", "char", "getchar", "type", "isalpha", "float", 
         "switch", "case", "break", "exit", "return"
     };
 
@@ -51,6 +51,7 @@ int main(){
         else if(isalpha(ch)){
             i = 0;
             str[i++] = ch;
+            
 
             while(isalnum((ch = fgetc(input)))){
                 str[i++] = ch;
