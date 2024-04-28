@@ -39,7 +39,7 @@ int main(){
                 }
                 fscanf(fp2, "%s", mnemonic); //Search till opcode is found in mnemonic table
             }
-            rewind(fp2);
+            rewind(fp2); //Bring back to start of mnemonic file.
         }
 
         fscanf(fp1, "%s %s %s", label, opcode, operand);
