@@ -1,0 +1,7 @@
+1 ** MATH
+2 ** ar
+3 ** sr
+4 ** MEND
+5 ** MUL
+6 ** mr
+7 ** MEND
