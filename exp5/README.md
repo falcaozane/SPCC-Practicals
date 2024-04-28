@@ -4,11 +4,17 @@
 
 
 **(when you will run the below 'lex' command, you will prompted to insatll one package, do the installation and then run again. Follow the below Sequence everytime from now on.)**
-```lex filename.l```
-```cc lex.yy.c -ll```
-```./a.out```
+```
+lex filename.l
+```
+```
+cc lex.yy.c -ll
+```
+```
+./a.out
+```
 
 
 
-**(Then run below command to get output)**
+**(Then click to get output)**
 ```Ctrl + D```
