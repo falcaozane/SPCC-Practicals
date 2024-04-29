@@ -936,6 +936,33 @@
                     }
             </p>
         </div>
+        <div>
+            <h1>New line lex code @latest</h1>
+            <p>
+                %{
+                    #include<stdio.h>
+                    int lines=1, words=0, spaces=0;
+                    %}
+                    %%
+                    \n      { lines++; }
+                    [\t ' ']  { spaces++; }
+                    [^ \t\n]+  { words++; }
+                    %%
+                    int yywrap(){
+                    return 1;
+                    }
+                    int main(){
+                    yyin= fopen("text2.txt","r");
+                    yylex();
+                    printf("\nThis File contains ...");
+                    printf("\n\t%d lines", lines);
+                    printf("\n\t%d words",words);
+                    printf("\n\t%d spaces\n", spaces);
+                    
+                    return 0;
+                    }
+            </p>
+        </div>
     </div>
 </body>
 </html>
