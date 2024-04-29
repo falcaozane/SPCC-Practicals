@@ -12,7 +12,7 @@ int main(){
     fp2 = fopen("mot.txt", "r");
     fp3 = fopen("output.txt", "r");
     fp4 = fopen("outTable.txt","w");
-    fp5 = fopen("BT.txt", "w");
+    fp5 = fopen("BT.txt", "w"); //Base Registers
 
     fscanf(fp3, "%s %s %s %s", locctr, label, opcode, operand);
     fscanf(fp3, "%s %s %s %s", locctr, label, opcode, operand);

@@ -6,10 +6,12 @@
 
 //Grammar
 // E -> T E'
-// Edash -> + T E' | ε
+// E' -> + T E' | ε
 // T -> F T'
-// Tdash -> * F T' | ε
+// T' -> * F T' | ε
 // F -> ( E ) | i
+
+//All non-terminals =  E, E', T, T', F
 
 //Function declarations for recursive parsing
 int E();
@@ -18,8 +20,10 @@ int T();
 int Tdash();
 int F();
 
+
+
 const char *pt; //Pointer to travse the input string
-char grammar[64];
+char grammar[64]; //Input sentence 
 
 
 
@@ -40,7 +44,7 @@ int main(){
         return 0;
     } else{
         //Error
-        puts("Parsing failed");
+        printf("Parsing failed");
         return 1;
     }
  
@@ -61,7 +65,7 @@ int E(){
 //Edash -> + T E' | ε
 int Edash(){
     if(*pt == '+'){
-        //if the next character is '+', continue parsing
+        //if the next character is '+', continue parsing // it is matching the syntax
         printf("%-16s E' -> + T E'\n", pt);
         pt++; 
 
@@ -126,6 +130,6 @@ int F(){
         pt++;
         return SUCCESS;
     }else{
-        return SUCCESS;
+        return FAILED;
     }
 }

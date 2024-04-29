@@ -27,7 +27,7 @@ int main(){
         if(strcmp(opcode, "DC") == 0 || strcmp(opcode, "DS")==0){
             fprintf(fp4, "%s %d\n", label, locctr);
             fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
-            locctr +=4; 
+            locctr +=4; //Assume they are taking 4 byte space
         }
         else{
             fscanf(fp2, "%s", mnemonic);

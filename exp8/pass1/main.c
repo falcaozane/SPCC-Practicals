@@ -23,12 +23,12 @@ int main(){
 
             //Traverse the Macro
             while(strcmp(opcode, "MEND")!= 0){
-                fprintf(fp3, "%d %s %s\n", mdtc, label, opcode, operand);
+                fprintf(fp3, "%d %s %s %s\n", mdtc, label, opcode, operand);
                 mdtc++;
                 fscanf(fp1, "%s %s %s", label, opcode, operand);
             }
 
-            //add MEND to mdtc.
+            //add MEND to mdt.
             fprintf(fp3, "%d %s %s\n", mdtc, label, opcode, operand);
             mdtc++;
         }else{
